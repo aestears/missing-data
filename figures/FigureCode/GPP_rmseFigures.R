@@ -144,7 +144,7 @@ RMSE <- RMSE %>%
     #ylim(c(0,1.25)) + 
     scale_x_continuous(breaks=c(0.2,0.4, 0.6)) +
     scale_color_discrete(type = c("#D55E00","#CC79A7", "#E69F00", "#0072B2","#009E73"),
-                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Kalman Filter", "Multiple Imp."), 
+                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Kalman Filter", "Multiple Imputation"), 
     )  +
     guides(col = guide_legend(title = "Model Type", position = "top", direction = "vertical", nrow = 2))
 )
@@ -196,7 +196,7 @@ RMSE_errorBar <- RMSE_errorBar %>%
     #ylim(c(0,1.25)) + 
     scale_x_continuous(breaks=c(0.2,0.4, 0.6)) +
     scale_color_discrete(type = c("#D55E00","#CC79A7", "#E69F00", "#0072B2","#009E73"),
-                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Kalman Filter", "Multiple Imp."), 
+                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Kalman Filter", "Multiple Imputation"), 
     )  +
     guides(col = guide_legend(title = "Model Type", position = "top", direction = "vertical", nrow = 2))
 )

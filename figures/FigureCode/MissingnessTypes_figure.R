@@ -47,16 +47,16 @@ gausSim <- gausSim %>%
                names_to = "MissingnessType")
 # fix names
 gausSim[gausSim$MissingnessType == "y", "MissingnessType"] <- "A: No Missing Data"
-gausSim[gausSim$MissingnessType == "y_lowAuto_40Miss", "MissingnessType"] <- "D: MAR: 40% missing, 0 autocorr."
-gausSim[gausSim$MissingnessType == "y_lowAuto_10Miss", "MissingnessType"] <- "B: MAR: 10% missing, 0 autocorr."
-gausSim[gausSim$MissingnessType == "y_highAuto_10miss", "MissingnessType"] <- "C: MAR: 10% missing, .9 autocorr."
-gausSim[gausSim$MissingnessType == "y_highAuto_40miss", "MissingnessType"] <- "E: MAR: 40% missing, .9 autocorr."
+gausSim[gausSim$MissingnessType == "y_lowAuto_40Miss", "MissingnessType"] <- "D: MCAR: 40% missing, 0 autocorr."
+gausSim[gausSim$MissingnessType == "y_lowAuto_10Miss", "MissingnessType"] <- "B: MCAR: 10% missing, 0 autocorr."
+gausSim[gausSim$MissingnessType == "y_highAuto_10miss", "MissingnessType"] <- "C: MCAR: 10% missing, .9 autocorr."
+gausSim[gausSim$MissingnessType == "y_highAuto_40miss", "MissingnessType"] <- "E: MCAR: 40% missing, .9 autocorr."
 gausSim[gausSim$MissingnessType == "y_minMaxMiss_10", "MissingnessType"] <- "F: MNAR: 10% missing"
 gausSim[gausSim$MissingnessType == "y_minMaxMiss_40", "MissingnessType"] <- "G: MNAR: 40% missing"
 
 gausSim$MissingnessType <- factor(gausSim$MissingnessType, 
-                                      levels = c("A: No Missing Data", "B: MAR: 10% missing, 0 autocorr.", "C: MAR: 10% missing, .9 autocorr.",
-                                                 "D: MAR: 40% missing, 0 autocorr.", "E: MAR: 40% missing, .9 autocorr.", "F: MNAR: 10% missing", "G: MNAR: 40% missing"),
+                                      levels = c("A: No Missing Data", "B: MCAR: 10% missing, 0 autocorr.", "C: MCAR: 10% missing, .9 autocorr.",
+                                                 "D: MCAR: 40% missing, 0 autocorr.", "E: MCAR: 40% missing, .9 autocorr.", "F: MNAR: 10% missing", "G: MNAR: 40% missing"),
                                       ordered = TRUE)
 # make histograms like Dusty made (looking at histogram of values in the missing
 # data time series vs. expected distribution from the AR1 process)
@@ -80,7 +80,7 @@ ts_hist <- ggplot(data = gausSim) +
 
 
 ## save the figure to file
-png(filename = "./figures/CompareMissingnessTypes_fig.png", width = 700, height = 600)
+png(filename = "./figures/CompareMissingnessTypes_fig.png", width = 7.5, height = 7.5, units = "in", res = 700)
 ggarrange(ts_lines,
           ts_hist,
           widths = c(.75,.25),

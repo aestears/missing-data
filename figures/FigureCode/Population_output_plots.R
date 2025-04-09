@@ -342,9 +342,17 @@ figDat_lines2<-figDat_lines%>% filter(missingness=="MCAR: Med. AC")
 
 
 # parameter recovery bias -------------------------------------------------
+param.labs <- c("r", "alpha")
+names(param.labs) <- c("r", expression(alpha))
+figDat_lines2 <- figDat_lines2 %>% 
+  mutate(figDat_lines2 = replace(param, param == "r", "'r'")) %>% 
+  mutate(figDat_lines2 = replace(param, param == "alpha", 'alpha'))
+
 (poiss_paramRecovery_bias_MAR <- ggplot(data = figDat_lines2, aes(x = amtMiss, y = paramDiff_med)) +
-   ggh4x::facet_grid2(~factor(param, levels = c( "r", "alpha"),labels=c("r", bquote(alpha)))
-                      ~ factor(missingness, levels = c("MCAR: Med. AC"), labels =c("Missing Completely at Random")), scales = "free_y")+
+   ggh4x::facet_grid2(factor(param, levels = c( "r", "alpha"), labels = c("r", 'alpha'))
+                      ~ factor(missingness, levels = c("MCAR: Med. AC"), labels =c("'Missing Completely at Random'")),
+                      labeller =  label_parsed,
+                      scales = "free_y")+
    geom_hline(aes(yintercept = 0), colour = "grey") + 
    #geom_errorbar(aes(ymin=paramDiff_mean - paramDiff_SD, ymax=paramDiff_mean + paramDiff_SD, color = as.factor(type)), 
    #size=0.3, width=0, position = position_dodge(width=0.03))+
@@ -361,12 +369,13 @@ figDat_lines2<-figDat_lines%>% filter(missingness=="MCAR: Med. AC")
    xlim(c(-0.03,0.65)) + 
    #ylim(c(0,.3)) +
    scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73","#8c8c8c", "#CC79A7"),
-                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputations","Expectation Maximization", "Data Augmentation"))
+                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputation","Expectation Maximization", "Data Augmentation"))
 )
 
 # parameter recovery SE ---------------------------------------------------
 (poiss_paramRecovery_SE_MAR <- ggplot(data = figDat_lines2, aes(x = amtMiss, y = paramDiffAbsDiff_med)) +
-   facet_wrap(~factor(param, levels = c("r","alpha"),labels=c("r", expression(alpha))),scales = "free_y", ncol=1, strip.position = "right") + 
+    geom_hline(aes(yintercept = 0), colour = "grey") +
+   facet_wrap(~factor(param, levels = c("r","alpha"),labels=c("r", expression(alpha))),scales = "free_y", ncol=1, strip.position = "right", labeller = label_parsed) + 
    geom_hline(aes(yintercept = 0), colour = "grey") + 
    #geom_errorbar(aes(ymin=paramDiff_mean - paramDiff_SD, ymax=paramDiff_mean + paramDiff_SD, color = as.factor(type)), 
    #size=0.3, width=0, position = position_dodge(width=0.03))+
@@ -383,7 +392,7 @@ figDat_lines2<-figDat_lines%>% filter(missingness=="MCAR: Med. AC")
    xlim(c(-0.03,0.65)) + 
    #ylim(c(0,.3)) +
    scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73","8c8c8c", "#CC79A7"),
-                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputations","Expectation Maximization", "Data Augmentation"))
+                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputation","Expectation Maximization", "Data Augmentation"))
  
 )
 # parameter recovery coverage ---------------------------------------------
@@ -424,8 +433,8 @@ figDat_cov2<-figDat_cov%>% filter(missingness=="MCAR: Med. AC")
 
 
 (poiss_paramRecovery_coverage_MAR <- ggplot(data = figDat_cov2, aes(x = amtMiss, y = coveragePerc)) +
-    facet_wrap(~factor(param, levels = c("r","alpha")), scales = "free_y", ncol=1, strip.position = "right") + 
-    #geom_col(aes(x = amtMiss, y = coveragePerc, color = as.factor(type), fill = as.factor(type)), 
+    facet_wrap(~factor(param, levels = c("r","alpha"), labels = c("r", 'alpha')), scales = "free_y", ncol=1, strip.position = "right", 
+               labeller =  label_parsed) + #geom_col(aes(x = amtMiss, y = coveragePerc, color = as.factor(type), fill = as.factor(type)), 
     # position = "dodge", alpha = .5) + 
     geom_hline(aes(yintercept = .95), colour = "grey") +
     geom_line(aes(color = as.factor(type)), position = position_dodge(width=0.03)) + 
@@ -651,161 +660,4 @@ ricDat_new_long_all <- ricDat_new_long #ricDat_new_extinctAll_long %>%
 ## save data for later (regular runs + runs for extinct data)
 # # save data to file for use later...
 #write_rds(ricDat_new_long_all, file = "./data/model_results/rickerRegAndExtinct_sim_ModelResultsLong.rds")
-
-# Make Figures ------------------------------------------------------------
-##compare the parameter estimates to the true values 
-alpha_plot <- ggplot(data = ricDat_new_long_all[ricDat_new_long_all$param=="alpha",]) +
-  geom_point(aes(x =  paramSim, y = paramEst)) +
-  geom_abline(aes(slope = 1, intercept = 0), col = "grey") +
-  facet_grid(~type, scales = "free") +
-  ggtitle("alpha")
-r_plot <- ggplot(data = ricDat_new_long_all[ricDat_new_long_all$param=="r",]) +
-  geom_point(aes(x =  paramSim, y = paramEst)) +
-  geom_abline(aes(slope = 1, intercept = 0), col = "grey") +
-  facet_grid(~type, scales = "free")  +
-  ggtitle("r")
-ggpubr::ggarrange(alpha_plot, r_plot)
-
-# generate summary statistics for each group of missingness and autocorrelation
-ricDat_new_lines <- ricDat_new_long_all %>% 
-  filter(missingness %in% c("MAR: High AC", "MAR: Med. AC", "MAR: Low AC")) %>% 
-  mutate(autoCor = round(autoCorr, 1), 
-         amtMiss = round(propMiss, 1)) %>% 
-  group_by(missingness, type, param, amtMiss) %>% 
-  summarize(paramDiff_mean = mean(paramDiff_abs, na.rm = TRUE),
-            paramDiff_med = median(paramDiff_abs, na.rm = TRUE),
-            paramDiff_SD = sd(paramDiff_abs, na.rm = TRUE),
-            n = length(paramDiff_abs)) %>% 
-  filter(n  > 50)  %>% # drop combinations that have fewer than 300 observations
-  filter(amtMiss <=.5)
-
-# Figure of parameter recovery (mean and sd in separate panels) 
-# figure of means for each model type and level of missingness (with shortened x-axis)
-(pois_sim_MedsFig_trimmed <- ggplot(data = ricDat_new_lines, aes(x = amtMiss, y = paramDiff_med)) +
-    facet_grid(~factor(param, levels = c( "alpha", "r")) 
-               ~ factor(missingness, levels = c("MAR: Low AC", "MAR: Med. AC", "MAR: High AC")),
-               scales = "free_y") + 
-    geom_hline(aes(yintercept = 0), colour = "grey") + 
-    geom_line(aes(color = as.factor(type)), position = position_dodge(width=0.03)) + 
-    #geom_point(data = data.frame("x" = c(0,.5), "y" = c(-.25, .1)), aes(x = x, y = y), alpha = 0.0000001) + ## add invisible points to change scales
-    geom_point(aes(color = as.factor(type)), alpha = .8, position = position_dodge(width=0.03)) +
-    #geom_line(aes(x = amtMiss, y = paramDiff_med, color = as.factor(type)), position = position_dodge(width=0.03), lty = 2) +
-    theme_classic() +
-    xlab("Proportion of missing data")+ 
-    theme(legend.position="top", legend.title=element_blank())+
-    ylab("Median of parameter bias across sims.")+ 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(size = 8)) + 
-    scale_color_discrete(type = c("#66A61E","#1B9E77", "#E7298A", "#E6AB02","#7570B3"),
-                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Expectation Maximization", "Multiple Imputation"))#+
-  #ylim(c(-0.85,0.55))
-)
-# figure of SD for each model type and level of missingness
-(pois_sim_SDFig_trimmed <- ggplot(data = ricDat_new_lines, aes(x = amtMiss, y = paramDiff_SD)) +
-    facet_grid(~factor(param, levels = c( "alpha", "r")) 
-               ~ factor(missingness, levels = c("MAR: Low AC", "MAR: Med. AC", "MAR: High AC")))+# ,
-    #scales = "free_y") + 
-    geom_line(aes(color = as.factor(type)), position = position_dodge(width=0.03)) + 
-    geom_point(aes(color = as.factor(type)), alpha = .8, position = position_dodge(width=0.03)) +
-    geom_hline(aes(yintercept = 0), colour = "grey") + theme_classic() +
-    xlab("Proportion of missing data")+ 
-    theme(legend.position="top")+
-    theme(legend.title=element_blank())+
-    ylab("SD of parameter bias across sims.")+ 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(size = 8)) + 
-    scale_color_discrete(type = c("#66A61E","#1B9E77", "#E7298A", "#E6AB02","#7570B3"),
-                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Expectation Maximization", "Multiple Imputation"))    
-) 
-
-# put into one figure
-pois_paramRecov_trimmed <- ggarrange(pois_sim_MedsFig_trimmed, pois_sim_SDFig_trimmed, common.legend = TRUE)
-
-## save results
-png(file = "./figures/parameterRecovery_sim_Poisson_medsSD_trimmed.png", width = 9, height = 4, units = "in", res = 700)
-pois_paramRecov_trimmed
-dev.off()
-
-
-
-#
-ricDat_new_verylong <- ricDat_new_long_all %>% 
-  filter(missingness %in% c("MAR: High AC", "MAR: Med. AC", "MAR: Low AC")) %>% 
-  mutate(autoCor = round(autoCorr, 1), 
-         amtMiss = round(propMiss, 1)) %>% 
-  group_by(missingness, type, param, amtMiss) %>% 
-  summarize(paramDiff_mean = mean(paramDiff, na.rm = TRUE),
-            paramDiff_med = median(paramDiff, na.rm = TRUE),
-            paramDiff_SD = sd(paramDiff, na.rm = TRUE),
-            n = length(paramDiff)) %>% 
-  filter(n  > 100)  
-
-# make a figure like the one above, but without a trimmed x axis
-# figure of means for each model type and level of missingness
-(poiss_sim_MedsFig_reg<- ggplot(data = ricDat_new_verylong, aes(x = amtMiss, y = paramDiff_med)) +
-    facet_grid(~factor(param, levels = c("alpha", "r")) 
-               ~ factor(missingness, levels = c("MAR: Low AC", "MAR: Med. AC", "MAR: High AC"))) + 
-    geom_hline(aes(yintercept = 0), colour = "grey") + 
-    #geom_errorbar(aes(ymin=paramDiff_mean - paramDiff_SD, ymax=paramDiff_mean + paramDiff_SD, color = as.factor(type)), 
-    #size=0.3, width=0, position = position_dodge(width=0.03))+
-    #geom_ribbon(aes(ymin = paramDiff_mean - paramDiff_SD, ymax = paramDiff_mean + paramDiff_SD, color = as.factor(type), fill = as.factor(type)), alpha = .1) +
-    geom_line(aes(color = as.factor(type)), position = position_dodge(width=0.03)) + 
-    geom_point(aes(color = as.factor(type)), alpha = .8, position = position_dodge(width=0.03)) +
-    theme_classic() +
-    xlab("Proportion of missing data")+ 
-    theme(legend.position="top")+
-    theme(legend.title=element_blank())+
-    ylab("Median of parameter bias across sims.")+ 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(size = 8)) + 
-    scale_color_discrete(type = c("#66A61E","#1B9E77", "#E7298A", "#E6AB02","#7570B3"),
-                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Expectation Maximization", "Multiple Imputation"))
-  
-)
-# figure of SD for each model type and level of missingness
-(poiss_sim_SDFig_reg<- ggplot(data = ricDat_new_verylong, aes(x = amtMiss, y = paramDiff_SD)) +
-    facet_grid(~factor(param, levels = c("alpha", "r")) 
-               ~ factor(missingness, levels = c("MAR: Low AC", "MAR: Med. AC","MAR: High AC"))) + 
-    geom_hline(aes(yintercept = 0), colour = "grey") + 
-    geom_line(aes(color = as.factor(type)), position = position_dodge(width=0.03)) + 
-    geom_point(aes(color = as.factor(type)), alpha = .8, position = position_dodge(width=0.03)) +
-    #geom_ribbon(aes(ymin = 0, ymax = paramDiff_SD, fill = as.factor(type), color = as.factor(type)), alpha = .2, position = position_dodge(width=0.03)) +
-    theme_classic() +
-    xlab("Proportion of missing data")+ 
-    theme(legend.position="top")+
-    theme(legend.title=element_blank())+
-    ylab("SD of parameter bias across sims.")+ 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(size = 8)) + 
-    scale_color_discrete(type = c("#66A61E","#1B9E77", "#E7298A", "#E6AB02","#7570B3"),
-                         labels = c("Data Deletion-Complete", "Data Augmentation", "Data Deletion-Simple", "Expectation Maximization", "Multiple Imputation"))
-) 
-# put into one figure
-poiss_paramRecov <- ggarrange(poiss_sim_MedsFig_reg, poiss_sim_SDFig_reg, common.legend = TRUE)
-
-## save results
-png(file = "./figures/parameterRecovery_sim_Poisson_medsSD.png", width = 9, height = 4, units = "in", res = 700)
-poiss_paramRecov
-dev.off()
-
-
-ricDat_new_violin <- ricDat_new_long_all %>% 
-  filter(missingness %in% c("MAR: High AC", "MAR: Med. AC", "MAR: Low AC")) %>% 
-  mutate(autoCor = round(autoCorr, 1), 
-         amtMiss = round(propMiss, 1)) %>% 
-  filter(amtMiss <=0.5)
-
-
-(pois_sim_violin <- ggplot(data = ricDat_new_violin) +
-    facet_grid(~factor(param, levels = c( "alpha", "r")) 
-               #~ factor(missingness, levels = c("MAR: Low AC", "MAR: Med. AC", "MAR: High AC")),
-               ~ factor(type),
-               scales = "free_y") + 
-    geom_point(aes(x = as.factor(amtMiss), y = paramDiff, color = type), alpha = .8, position = position_dodge(width=0.07)) +
-    geom_hline(aes(yintercept = 0), colour = "grey") + 
-    geom_violin(aes(x = as.factor(amtMiss), y = paramDiff, color = type), draw_quantiles = c(.50)) +
-    theme_classic() +
-    xlab("Proportion of missing data")+ 
-    theme(legend.position="top")+
-    theme(legend.title=element_blank())+
-    ylab("Mean standardized parameter estimate")+ 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.text.x = element_text(size = 8)) +
-    ylim(c(-8,8))
-)
 
