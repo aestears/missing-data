@@ -14,7 +14,7 @@ gauss_sim_figDat <- readRDS("./data/model_results/gauss_sim_ModelResults_normPri
 gauss_sim_figDat <- gauss_sim_figDat[gauss_sim_figDat$simName != 376,]
 
 ##make heat map! ##
-# Make heatmaps for Gaussian MAR data -------------------------------------
+# Make heatmaps for Gaussian MCAR data -------------------------------------
 # bin amt missing and autocorr (average paramDiff)
 figDat <- gauss_sim_figDat %>% 
   filter(param != "sigma" & 
@@ -44,7 +44,7 @@ type_names <- c(
   "Data Deletion CC" = "Data Deletion-Complete",
   "Data Deletion Simple" = "Data Deletion-Simple",
   "Kalman filter" =  "Kalman filter",
-  "Multiple imputations" = "Multiple imputations",
+  "Multiple Imputation" = "Multiple Imputation",
   "brms" = "Data Augmentation", 
   "Phi" = "Phi", 
   "Beta covariates" = "Beta covariates"
@@ -58,35 +58,46 @@ figDat2 <- figDat %>%
 ## make heatmap for median of parameter recovery
 (heatMap_median_MCAR <-ggplot(data = figDat2, aes(x=amtMiss, y=autoCor)) + 
     geom_tile(aes(fill=paramDiff_med), size=5) + 
-    scale_fill_viridis_c(name = "value" , option = "A") +
+    #scale_fill_viridis_c(name = "value" , option = "A") +
+    scale_fill_gradient2(high = "darkblue",
+                         mid = "orange",
+                         low = "yellow" ,
+                         midpoint = -.5, limits = c(-0.82, .050),  na.value = "lightgrey") +
     #scale_fill_distiller(palette = "Spectral", direction = 1, name = "value")+
     ggh4x::facet_grid2(factor(param, levels = c("phi", "beta")
                                )
                        ~factor(type, levels = c("Data Deletion CC", "Data Deletion Simple", "Kalman filter", "Multiple imputations", "brms"), 
-                        labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple imputations"', '"Data Augmentation"'))
+                        labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple Imputation"', '"Data Augmentation"'))
                       , labeller = label_parsed) +
     xlab("Proportion of missing data")+
     ylab("Autocorrelation in missingness") +
-    guides(fill = guide_colorbar("Bias")) +
+    guides(fill = guide_colorbar("Median Error")) +
     theme_classic() +
+    ylim(0,1) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    ggtitle("Median of parameter error across sims.")) 
+    ggtitle("Median error of parameter recovery")) 
 
 ## make heatmap for SE of parameter recovery
 (heatMap_SE_MCAR <-ggplot(data = figDat2, aes(x=amtMiss, y=autoCor)) + 
     geom_tile(aes(fill=paramDiffAbsDiff_med), size=5) + 
-    scale_fill_viridis_c(name = "value" , option = "D") +
+    #scale_fill_viridis_c(name = "value" , option = "D") +
+    scale_fill_gradient2(low= "darkblue",
+                         mid = "turquoise",
+                         high = "green" ,
+                         midpoint = .5, limits = c(0, 0.82),  na.value = "lightgrey") +
     #scale_fill_distiller(palette = "Spectral", direction = 1, name = "value")+
     ggh4x::facet_grid2(factor(param, levels = c("phi", "beta")
     )
     ~factor(type, levels = c("Data Deletion CC", "Data Deletion Simple", "Kalman filter", "Multiple imputations", "brms"), 
-            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple imputations"', '"Data Augmentation"'))
+            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple Imputation"', '"Data Augmentation"'))
     , labeller = label_parsed) +
+    xlab("Proportion of missing data")+
     ylab("Autocorrelation in missingness") +
-    guides(fill = guide_colorbar("Stand. Error")) +
+    guides(fill = guide_colorbar("Median \nAbsolute Error")) +
     theme_classic() +
+    ylim(0,1) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    ggtitle("Absolute Standard Error of Parameter Recovery")) 
+    ggtitle("Median absolute error of parameter recovery")) 
 
 ## make heatmap for SD of parameter recovery
 # calculate coverage 
@@ -124,20 +135,25 @@ figDat_covMNAR <- figDat_cov %>%
  
 (heatMap_cov_MCAR <- ggplot(data = figDat_covMAR, aes(x=amtMiss, y=autoCor)) + 
     geom_tile(aes(fill=coveragePerc*100), size=5) + 
+    #geom_tile(data = figDat_covMAR[figDat_covMAR$coveragePerc >.96,], aes(), fill = "grey") + 
     ggh4x::facet_grid2(factor(param, levels = c("phi", "beta")
     )
     ~factor(type, levels = c("Data Deletion CC", "Data Deletion Simple", "Kalman filter", "Multiple imputations", "brms"), 
-            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple imputations"', '"Data Augmentation"'))
+            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple Imputation"', '"Data Augmentation"'))
     , labeller = label_parsed) +
      #scale_fill_distiller(palette = "Greys", direction = 1, name = "value") +#value = SD
-    scale_fill_viridis_c(begin=0, end=1, option = "G", name = "value" )+ 
-    guides(fill = guide_colorbar("Stand. Error")) +
+    #scale_fill_viridis_c(begin=0, end=1, option = "G", name = "value" )+ 
+    scale_fill_gradient(low = "darkblue",
+                        high = "lightblue" ,
+                        limits = c(0,100),  na.value = "lightgrey") +
+    guides(fill = guide_colorbar("Median \n Absolute Error")) +
     xlab("Proportion of missing data")+
     ylab("Autocorrelation in missingness") +
     guides(fill = guide_colorbar("% Coverage")) +
     theme_classic() +
+    ylim(0,1) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    ggtitle("% of model runs where the 95% CI \n includes the simulation parameter"))
+    ggtitle("% of model runs where the 95% CI includes the simulation parameter"))
 
 ## save figures
 png(file = "./figures/heatmap_GaussianMCAR_median.png", width = 8, height = 6, units = "in", res = 700)
@@ -152,16 +168,24 @@ png(file = "./figures/heatmap_GaussianMCAR_coverage.png", width = 8, height = 6,
 heatMap_cov_MCAR
 dev.off()
 
-png(file = "./figures/heatmap_GaussianMCAR_all.png", width = 12.5, height = 6, units = "in", res = 700)
-ggarrange(heatMap_median_MCAR, heatMap_SE_MCAR, heatMap_cov_MCAR)
+png(file = "./figures/heatmap_GaussianMCAR_all.png", width = 9.5, height = 12, units = "in", res = 700)
+ggarrange(heatMap_median_MCAR, heatMap_SE_MCAR, heatMap_cov_MCAR, ncol = 1) %>% 
+  annotate_figure(top = text_grob("Parameter recovery from real-valued time series with MCAR data", just = .65, 
+                                  size = 16, face = "bold"))
 dev.off()
+
+
 
 # Get figure of MCAR median error for phi ----------------------------------
 figDat3 <- figDat2 %>% 
   filter(param == "phi")
 (heatMap_median_MCAR_slice <-ggplot(data = figDat3, aes(x=amtMiss, y=autoCor)) + 
    geom_tile(aes(fill=paramDiff_med), size=5) + 
-   scale_fill_viridis_c(name = "value" , option = "A") +
+   #scale_fill_viridis_c(name = "value" , option = "A") +
+    scale_fill_gradient2(high = "darkblue",
+                         mid = "orange",
+                         low = "yellow" ,
+                         midpoint = -.5, limits = c(-0.82, .050),  na.value = "lightgrey") +
    #scale_fill_distiller(palette = "Spectral", direction = 1, name = "value")+
    ggh4x::facet_grid2(
    ~factor(type, levels = c("Data Deletion Simple", "Data Deletion CC",  "Multiple imputations","Kalman filter",  "brms"), 
@@ -169,8 +193,9 @@ figDat3 <- figDat2 %>%
    , labeller = label_parsed) +
    xlab("Proportion of missing data")+
    ylab("Autocorrelation in missingness") +
-   guides(fill = guide_colorbar("Bias")) +
+   guides(fill = guide_colorbar("Median Error")) +
    theme_classic() +
+    ylim(0,1) +
    theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
    ggtitle("Missing completely at random: Median error of parameter recovery, \u03D5" )) 
 
@@ -209,12 +234,12 @@ figDat <- gauss_sim_figDat %>%
     ggh4x::facet_grid2(factor(param, levels = c("phi", "beta")
     )
     ~factor(type, levels = c("Data Deletion CC", "Data Deletion Simple", "Kalman filter", "Multiple imputations", "brms"), 
-            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple imputations"', '"Data Augmentation"'))
+            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple Imputation"', '"Data Augmentation"'))
     , labeller = label_parsed) +
     scale_fill_viridis_c(begin=1, end=0, option = "A")+
     xlab("Proportion of missing data")+
     ylab("Autocorrelation in missingness") +
-    guides(fill = guide_colorbar("Bias")) +
+    guides(fill = guide_colorbar("Median Error")) +
     theme_classic() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           axis.text.y = element_blank(),
@@ -229,13 +254,13 @@ figDat <- gauss_sim_figDat %>%
     ggh4x::facet_grid2(factor(param, levels = c("phi", "beta")
     )
     ~factor(type, levels = c("Data Deletion CC", "Data Deletion Simple", "Kalman filter", "Multiple imputations", "brms"), 
-            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple imputations"', '"Data Augmentation"'))
+            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple Imputation"', '"Data Augmentation"'))
     , labeller = label_parsed) +
     scale_fill_viridis_c(begin=1, end=0, option = "D")+
     xlab("Proportion of missing data")+
     ylab("Autocorrelation in missingness") +
     theme_classic() +
-    guides(fill = guide_colorbar("Stand. Error")) +
+    guides(fill = guide_colorbar("Median \n Absolute Error")) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           axis.text.y = element_blank(),
           axis.ticks.y = element_blank(),
@@ -249,10 +274,13 @@ figDat_covMNAR$autoCor <- 0
     ggh4x::facet_grid2(factor(param, levels = c("phi", "beta")
     )
     ~factor(type, levels = c("Data Deletion CC", "Data Deletion Simple", "Kalman filter", "Multiple imputations", "brms"), 
-            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple imputations"', '"Data Augmentation"'))
+            labels = c('"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Kalman filter"', '"Multiple Imputation"', '"Data Augmentation"'))
     , labeller = label_parsed) +
     #scale_fill_distiller(palette = "Greys", direction = 1, name = "value") +#value = SD
-    scale_fill_viridis_c(begin=0, end=1, option = "G", name = "value" )+ 
+    #scale_fill_viridis_c(begin=0, end=1, option = "G", name = "value" )+ 
+    scale_fill_gradient(low = "darkblue",
+                        high = "lightblue" ,
+                        limits = c(0,100),  na.value = "lightgrey") +
     xlab("Proportion of missing data")+
     guides(fill = guide_colorbar("% Coverage")) +
     ylab("Autocorrelation in missingness") +
@@ -274,8 +302,8 @@ png(file = "./figures/heatmap_GaussianMNAR_coverage.png", width = 8, height = 6,
 heatMap_cov_MNAR
 dev.off()
 
-png(file = "./figures/heatmap_GaussianMNAR_all.png", width = 12.5, height = 6, units = "in", res = 700)
-ggarrange(heatMap_medians_MNAR, heatMap_SE_MNAR, heatMap_cov_MNAR)
+png(file = "./figures/heatmap_GaussianMNAR_all.png", width = 9, height = 12, units = "in", res = 700)
+ggarrange(heatMap_medians_MNAR, heatMap_SE_MNAR, heatMap_cov_MNAR, ncol = 1)
 dev.off()
 
 

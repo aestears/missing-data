@@ -1,7 +1,7 @@
 #####################################
 ## au_sable_ts_plot.R by JPJ 6 i 25
 #####################################
-
+library(tidyverse)
 ## PURPOSE: to plot the au sable GPP time series
 ## USAGE: Rscript au_sable_ts_plot.R
 

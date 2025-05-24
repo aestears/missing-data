@@ -27,8 +27,6 @@ figDat_temp[figDat_temp$missingness=="MAR" & figDat_temp$autoCor >=  0.6, "missi
 figDat_temp <- figDat_temp %>% 
   mutate(type=fct_relevel(type,c("Data Deletion Simple", "Data Deletion CC" ,"Multiple imputations","Kalman filter","brms")))
 
-
-
 #
 figDat_lines <- figDat_temp %>% 
   filter(param != "sigma") %>%

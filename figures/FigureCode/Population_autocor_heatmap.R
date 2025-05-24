@@ -3,6 +3,7 @@
 # Load packages
 library(tidyverse)
 library(ggpubr)
+library(ggh4x)
 
 ## read in data 
 # read in data and prepare for figures------------------------------------------
@@ -326,31 +327,54 @@ figDat <- ric_sim_figDat %>%
   filter(propMiss <=.5)
 # only consider missingness of 50% or less
 
+
 ## make heatmap for mean of parameter recovery
 (heatMap_median_MAR <-ggplot(data = figDat, aes(x=propMiss, y=autoCorr)) + 
     geom_tile(aes(fill=paramDiff_med), size=5) + 
-    scale_fill_viridis_c(name = "value" , option = "A") +
+    #scale_fill_viridis_c(name = "value" , option = "A", direction = -1) +
+    scale_fill_gradient2(low = "darkblue",
+                         mid = "orange",
+                         high = "yellow" ,
+                         midpoint = .5, limits = c(-.050, 0.82),  na.value = "lightgrey") +
     #scale_fill_distiller(palette = "Spectral", direction = 1, name = "value")+
-    facet_grid(~factor(figDat$param, levels = c("alpha", "r")) ~ type) +
+    #facet_grid(~factor(figDat$param, levels = c("alpha", "r")) ~ type) +
+    ggh4x::facet_grid2(factor(param, levels = c("alpha", "r")
+    )
+    ~factor(type, levels = 
+            c("DataAugmentation", "CompleteCaseDropNA", "dropNA", "ExpectationMaximization", "MultipleImputations"),
+            labels = c('"Data Augmentation"', '"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Expectation Maximization"', '"Multiple Imputation"' ))
+    , labeller = label_parsed) +
     xlab("Proportion of missing data")+
     ylab("Autocorrellation in missingness") +
-    guides(fill = guide_colorbar("Bias")) +
+    guides(fill = guide_colorbar("Median Error")) +
     theme_classic() +
+    xlim(.05, .55) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    ggtitle("Median of parameter error across sims")) 
+    ggtitle("Median error of parameter recovery")) 
 
 ## make heatmap for mean of *absolute value* of parameter recovery
 (heatMap_SE_MAR <-ggplot(data = figDat, aes(x=propMiss, y=autoCorr)) + 
     geom_tile(aes(fill=paramDiffAbsDiff_med), size=5) + 
-    scale_fill_viridis_c(name = "value" , option = "D") +
+    #scale_fill_viridis_c(name = "value" , option = "D") +
+    scale_fill_gradient2(low = "darkblue",
+                         mid = "turquoise",
+                        high = "green" ,
+                        midpoint = .5, limits = c(0, 0.82),  na.value = "lightgrey") +
     #scale_fill_distiller(palette = "Spectral", direction = 1, name = "value")+
-    facet_grid(~factor(figDat$param, levels = c("alpha", "r")) ~ type) +
+    #facet_grid(~factor(figDat$param, levels = c("alpha", "r")) ~ type) +
+    ggh4x::facet_grid2(factor(param, levels = c("alpha", "r")
+    )
+    ~factor(type, levels = 
+              c("DataAugmentation", "CompleteCaseDropNA", "dropNA", "ExpectationMaximization", "MultipleImputations"),
+            labels = c('"Data Augmentation"', '"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Expectation Maximization"', '"Multiple Imputation"' ))
+    , labeller = label_parsed) +
     xlab("Proportion of missing data")+
     ylab("Autocorrellation in missingness") +
-    guides(fill = guide_colorbar("Stand. Error")) +
+    guides(fill = guide_colorbar("Median \nAbsolute Error")) +
     theme_classic() +
+    xlim(.05, .55) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    ggtitle("Absolute standard error of parameter recovery")) 
+    ggtitle("Median absolute error of parameter recovery")) 
 
 ## make heatmap for coverage for parameter recovery
 figDat_cov_temp <- ricDat_new_long %>% 
@@ -379,15 +403,25 @@ figDat_cov <- figDat_cov_temp %>%
 
 (heatMap_cov_MAR <- ggplot(data = figDat_cov, aes(x=propMiss, y=autoCorr)) + 
     geom_tile(aes(fill=coveragePerc*100), size=5) + 
-    facet_grid(~factor(figDat_cov$param, levels = c("alpha", "r")) ~ type) +
+    #facet_grid(~factor(figDat_cov$param, levels = c("alpha", "r")) ~ type) +
+    ggh4x::facet_grid2(factor(param, levels = c("alpha", "r")
+    )
+    ~factor(type, levels = 
+              c("DataAugmentation", "CompleteCaseDropNA", "dropNA", "ExpectationMaximization", "MultipleImputations"),
+            labels = c('"Data Augmentation"', '"Data Deletion-Complete"', '"Data Deletion-Simple"', '"Expectation Maximization"', '"Multiple Imputation"' ))
+    , labeller = label_parsed) +
     #scale_fill_distiller(palette = "Greys", direction = 1, name = "value") +
-    scale_fill_viridis_c(begin=0, end=1, option = "G", name = "value" )+
+  scale_fill_gradient(low = "darkblue",
+                       high = "lightblue" ,
+                       limits = c(0,100),  na.value = "lightgrey") +
+   # scale_fill_viridis_c(begin=0, end=1, option = "G", name = "value" )+
     xlab("Proportion of missing data")+
     ylab("Autocorrellation in missingness") +
+    xlim(.05, .55) +
     theme_classic() +
     guides(fill = guide_colorbar("% Coverage")) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-    ggtitle("% of model runs where the 95% CI \n includes the simulation parameter"))
+    ggtitle("% of model runs where the 95% CI includes the simulation parameter"))
 
 ## save figures
 png(file = "./figures/heatmap_PoissonMCAR_median.png", width = 7, height = 6, units = "in", res = 700)
@@ -402,6 +436,9 @@ png(file = "./figures/heatmap_PoissonMCAR_coverage.png", width = 7, height = 6, 
 heatMap_cov_MAR
 dev.off()
 
-png(file = "./figures/heatmap_PoissonMCAR_all.png", width = 12.5, height = 6, units = "in", res = 700)
-ggarrange(heatMap_median_MAR, heatMap_SE_MAR, heatMap_cov_MAR)
+png(file = "./figures/heatmap_PoissonMCAR_all.png", width = 9.5, height = 12, units = "in", res = 700)
+ggarrange(heatMap_median_MAR, heatMap_SE_MAR, heatMap_cov_MAR, ncol = 1) %>% 
+  annotate_figure(top = text_grob("Parameter recovery from time series of counts with MCAR data", just = .65, 
+                                  size = 16, face = "bold"))
 dev.off()
+
