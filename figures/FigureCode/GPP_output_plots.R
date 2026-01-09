@@ -27,8 +27,6 @@ figDat_temp[figDat_temp$missingness=="MAR" & figDat_temp$autoCor >=  0.6, "missi
 figDat_temp <- figDat_temp %>% 
   mutate(type=fct_relevel(type,c("Data Deletion Simple", "Data Deletion CC" ,"Multiple imputations","Kalman filter","brms")))
 
-
-
 #
 figDat_lines <- figDat_temp %>% 
   filter(param != "sigma") %>%
@@ -81,7 +79,7 @@ figDat_lines2 <- figDat_lines %>% filter(missingness=="MCAR: Med. AC"|missingnes
    xlim(c(-0.03,0.65)) + 
    #ylim(c(0,.3)) +
    scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73","#0072B2", "#CC79A7"),
-                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputations","Kalman Filter", "Data Augmentation"))
+                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputation","Kalman Filter", "Data Augmentation"))
 )
 
 
@@ -106,7 +104,7 @@ figDat_lines2 <- figDat_lines %>% filter(missingness=="MCAR: Med. AC"|missingnes
    xlim(c(-0.03,0.65)) + 
    #ylim(c(0,.3)) +
    scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73","#0072B2", "#CC79A7"),
-                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputations","Kalman Filter", "Data Augmentation"))
+                        labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputation","Kalman Filter", "Data Augmentation"))
  
 )
 
@@ -164,7 +162,7 @@ figDat_cov2 <- figDat_cov %>% filter(missingness=="MCAR: Med. AC"|missingness=="
     xlim(c(-0.03,0.65)) + 
     #ylim(c(0,.3)) +
     scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73","#0072B2", "#CC79A7"),
-                         labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputations","Kalman Filter", "Data Augmentation"))
+                         labels = c("Data Deletion-Simple", "Data Deletion-Complete","Multiple Imputation","Kalman Filter", "Data Augmentation"))
   
 )
 

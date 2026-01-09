@@ -209,7 +209,7 @@ rmse_missingness_int_med <- ggplot(RMSE_df_med) +
   geom_point(data=custom_seg,aes(x=x,y=means1,col=modelType),size=1)+
   scale_x_continuous(breaks = c(0.2,0.4,0.6)) +
   scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73", "#BBBBBB","#CC79A7"),
-                       labels = c("Data Deletion-Simple", "Data Deletion-Complete", "Multiple Imputations", "Expectation Maximization", "Data Augmentation")) +
+                       labels = c("Data Deletion-Simple", "Data Deletion-Complete", "Multiple Imputation", "Expectation Maximization", "Data Augmentation")) +
   labs(
     x = "Proportion Missing",
     y = "Root Mean Square Error (RMSE)",
@@ -258,7 +258,7 @@ RMSE_errorBar <- custom_seg %>%
     #ylim(c(0,1.25)) + 
     scale_x_continuous(breaks=c(0.2,0.4, 0.6)) +
     scale_color_discrete(type = c("#E69F00", "#D55E00","#009E73", "#BBBBBB","#CC79A7"),
-                         labels = c("Data Deletion-Simple", "Data Deletion-Complete", "Multiple Imputations", "Expectation Maximization", "Data Augmentation")) +
+                         labels = c("Data Deletion-Simple", "Data Deletion-Complete", "Multiple Imputation", "Expectation Maximization", "Data Augmentation")) +
     guides(col = guide_legend(title = "Model Type", position = "top", direction = "vertical", nrow = 3))
 )
 
