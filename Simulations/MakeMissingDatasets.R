@@ -4,7 +4,6 @@
 # 24 April 2023
 #/////////////////////
 
-
 # Load Packages -----------------------------------------------------------
 library(tidyverse)
 library(lubridate)
@@ -48,7 +47,7 @@ for (i in 1:length(inputAutocor)) {
 
 # missing in min and max of data
 gauss_sim_minMaxMiss <- lapply(X = gauss_sim, FUN = function(x) 
-  list("y" = makeMissing(timeSeries = x$y, typeMissing = "minMax"), 
+  list("y" = makeMissing(timeSeries = x$y, typeMissing = "minMax", type =  "Gaussian"), 
        
        "sim_params" <- x$sim_params)
 )
@@ -146,7 +145,7 @@ gauss_auSable_randMiss <- gauss_auSable_randMiss_list
 inputPropMiss <- c(.18, .19, .2, .21, .22, .38, .39, .4, .41, 42., .58, .59, .6, .61, .62)
 gauss_auSable_minMaxMiss_TEMP <- as.data.frame(makeMissing(timeSeries = gauss_auSable$GPP, 
                                                            typeMissing = "minMax", 
-                                                           propMiss = inputPropMiss))
+                                                           propMiss = inputPropMiss, type =  "Gaussian"))
 
 
 #names(gauss_auSable_minMaxMiss_TEMP) <- paste0("GPP_",names(gauss_auSable_minMaxMiss_TEMP))
@@ -253,7 +252,7 @@ gauss_badger_randMiss <- gauss_badger_randMiss_list
 inputPropMiss <- c(.18, .19, .2, .21, .22, .38, .39, .4, .41, 42., .58, .59, .6, .61, .62)
 gauss_badger_minMaxMiss_TEMP <- as.data.frame(makeMissing(timeSeries = gauss_badger$GPP, 
                                                            typeMissing = "minMax", 
-                                                           propMiss = inputPropMiss))
+                                                           propMiss = inputPropMiss, type =  "Gaussian"))
 #names(gauss_badger_minMaxMiss_TEMP) <- paste0("GPP_",names(gauss_badger_minMaxMiss_TEMP))
 
 gauss_badger_minMaxMiss <- cbind(gauss_badger, gauss_badger_minMaxMiss_TEMP)
@@ -305,7 +304,7 @@ for (i in 1:length(inputAutocor)) {
 
 # missing in min and max of data
 pois_sim_minMaxMiss <- lapply(X = pois_sim, FUN = function(x) 
-  list("y" = makeMissing(timeSeries = x$y, typeMissing = "minMax"), 
+  list("y" = makeMissing(timeSeries = x$y, typeMissing = "minMax", type = "Poisson"), 
        "sim_params" <- x$sim_params)
 )
 
