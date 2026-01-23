@@ -239,13 +239,24 @@ makeMissing <- function(timeSeries, typeMissing, propMiss = NULL, autoCorr= NULL
                                             FUN = function(x) round(sum(is.na(x))/length(x),2)))
     } else if (type == "Poisson") {
       # first, estimate the lambda values for this given time series
-      lambda_X <- coef(glm(timeSeries~1, family = poisson(link = "identity")))[1]
+      # function to get size and probability for the negative binomial distribution for this dataset
+      getParm2 = function(betas, my.data) {
+        b1 = betas[1]
+        b2 = betas[2]
+        return(-sum(dnbinom(my.data, mu = b1, size = b2, log = TRUE)))
+      }
+      r1 <- optim(c(0.75, 5), fn = getParm2, my.data=timeSeries, method = "Nelder-Mead"# "BFGS"
+                    , hessian = TRUE)
+      # r1 gives the mean (mu) and size of the negative binomial distribution fit to the timeseries provided
+      # lambda_X <- coef(glm(timeSeries~1, family = poisson(link = "sqrt")))[1]
       missingDat_list <- lapply(X = propMiss_f,                               
                                 FUN = function(X)
                                   
                                   replace(timeSeries,    
                                           # get the indices of the timeSeries values above the cutoff values 
-                                          list = c(which(timeSeries < qpois(X, lambda = lambda_X, lower.tail = TRUE))),
+                                          list = c(which(timeSeries < #qpois(X, lambda = lambda_X, lower.tail = TRUE)
+                                                           qnbinom(p = X, size = r1$par[2], mu= r1$par[1], lower.tail = TRUE)
+                                                           )),
                                           values = NA)
       )
       
