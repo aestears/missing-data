@@ -14,7 +14,7 @@
 #SBATCH --array=1-30
 
 
-module load arcc/1.0 gcc/12.2.0 r/4.4.0
+module load arcc/1.0 gcc/14.2.0 r/4.4.0
 
 cd /project/modelscape/analyses/MissingTS/missing-data
 
