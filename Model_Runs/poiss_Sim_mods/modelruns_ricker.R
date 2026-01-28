@@ -141,7 +141,7 @@ pars_full <- pars_full[as.numeric(in_args[5]):as.numeric(in_args[6]),]
 # define methods to be used
 if(is.na(in_args[7])){
   methods <- paste0(
-    c("drop", "cc", "EM", "DA","MI")
+    c("drop", "cc", "EM","DA")
   )
 } 
 
@@ -165,13 +165,23 @@ names(results_list) <- paste0(
   methods, "_fits"
 )
 
+
+
 for(i in 1:length(methods)){
+  fit_fun <- eval(parse(text = paste0("fit_ricker_", methods[i])))
+  
+  clusterExport(cl, "fit_fun", envir = environment())
+  
+  safe_fun <- function(x) {
+    if (all(is.na(x))) {
+      return(NA)
+    }
+    fit_fun(x)
+  }
   results_list[[i]] <- parLapply(
     cl = cl,
     X = dat_flat,
-    fun = eval(parse(
-      text = paste0("fit_ricker_", methods[i])
-    ))
+    fun = safe_fun
   )
 }
 
