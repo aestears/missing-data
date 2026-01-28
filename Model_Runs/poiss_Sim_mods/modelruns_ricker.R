@@ -10,6 +10,14 @@
 # Results are stored in a tibble with simulation specs and a column
 # with fitted values for each of the methods used to fit
 # the models in the presence of missing data.
+
+# REVISION NEEDS: 
+# 1) Add in forecasting
+# NOTES: how did we do forecasting for the real data? Maybe run separate script- made into useful for this?
+# 2) why don't the numbers match up for the MinMaxMiss data set- should be less because no autocorrelation?
+# ANS: because we also include the full data set as an entry, meaning 16 instead of 15 entries per simulation
+# 3) Compare to model run on full data set with 0% missing
+# ANS: we include the full in MinMaxMiss, so we should be good if we use that to forecast but not to do the missingness- see if 0 missing can be skipped for missingness trials
 ###################################################################
 
 library(here)
@@ -27,7 +35,9 @@ lapply(f_list, source)
 # (5) beginnning index (6) ending index (7) optional- model list
 
 # for testing outside of command line, can use this next line
-#in_args=c("data/missingDatasets/pois_sim_randMiss_A.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/RickerA_resultTable1.rds", 1, 5)
+#in_args=c("data/missingDatasets/pois_sim_MinMaxMiss_trim.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 20, "drop")
+#in_args=c("data/missingDatasets/pois_sim_randMiss_A.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 5)
+
 in_args <- commandArgs(trailingOnly = T)
 cat(in_args)
 # read in datafile
@@ -98,7 +108,7 @@ if(!is.null(names(dat))){
   pars_full <- pars_full %>% mutate(
     id = 1:length(dat_flat),
     propMiss = rep(
-      seq(0.05, 0.75, by = 0.05),
+      seq(0.00, 0.75, by = 0.05), # MinMaxMiss includes the full data set, so include 0 here
       nrow(pars)
     ),
     actPropMiss = prop_miss
@@ -133,7 +143,9 @@ if(is.na(in_args[7])){
   methods <- paste0(
     c("drop", "cc", "EM", "DA","MI")
   )
-}
+} 
+
+
 
 system.time({
 
@@ -163,6 +175,7 @@ for(i in 1:length(methods)){
   )
 }
 
+
 stopCluster(cl)
 
 
@@ -172,6 +185,48 @@ results <- cbind(
   as_tibble(results_list)
 )
 })
+
+# forecasts
+
+forecast_rmse=function(ralpha,trueTS){
+  r=ralpha[1]
+  alpha=ralpha[2]
+  l_ts=length(trueTS)
+  # we assume that the 1st value in trueTS is the given starting value for all
+  pred_TS=numeric(l_ts-1) 
+  pred_TS[1]=trueTS[1]
+  for(i in 1:(l_ts-1)){
+    pred_TS[i+1]=pred_TS[i]*exp(r-alpha*pred_TS[i])
+  }
+  
+  RMSE=sqrt(mean((pred_TS[2:l_ts] - trueTS[2:l_ts])^2))
+  return(RMSE)
+}
+
+forecasts=matrix(data=NA,nrow=nrow(results),ncol=length(methods))
+
+for(i in 1:nrow(results)){
+
+  for(j in 1:length(methods)){
+    column_cur=grep(paste0(methods[j],"_fits"),colnames(results))
+    ralpha=results[i,column_cur][[1]][[1]] 
+    cur_sim=results[i,1]
+    trueTS1=dat_flat[[(cur_sim-1)*16+1]]
+    trimmedlength=length(dat_flat[[(cur_sim-1)*16+2]])
+    trueTS=trueTS1[(trimmedlength+1):length(trueTS1)]
+    forecasts[i,j]=forecast_rmse(ralpha=ralpha,trueTS=trueTS)
+  }
+  
+}
+
+
+results <- cbind(
+  results,
+  forecasts
+)
+
+colnames(results)[(ncol(results)-length(methods)+1):ncol(results)]=paste0("forecast_RMSE_",methods)
+
 
 # save results to file
 saveRDS(results, file = here(in_args[4]))

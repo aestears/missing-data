@@ -60,16 +60,16 @@ write.table(configx, file="/Users/amypatterson/Documents/Laramie_postdoc/Missing
 # Simulated data, MinMax missingness
 ##########################################
 # Split it into chunks- every 2500 
-# Ricker A
+# Ricker 
 n=75000/2500
 # data file name
-datFile=rep("data/missingDatasets/pois_sim_MinMaxMiss_trim_A.rds",n)
+datFile=rep("data/missingDatasets/pois_sim_MinMaxMiss_trim.rds",n)
 # par file name
 parFile=rep("data/missingDatasets/pois_sim_params.rds",n)
 # cluster size
 clsize=rep(5,n)
 # save file location
-saveFile=paste0(rep("Model_Runs/RickerA_MinMaxMiss_resultTable",n),1:n,".rds")
+saveFile=paste0(rep("Model_Runs/Ricker_MinMaxMiss_resultTable",n),1:n,".rds")
 # beginning index
 index1=seq(1,75000,by=2500)
 # ending index
@@ -82,32 +82,8 @@ configx$clsize<-as.numeric(configx$clsize)
 configx$index1<-as.numeric(configx$index1)
 configx$index2<-as.numeric(configx$index2)
 
-write.table(configx, file="/Users/amypatterson/Documents/Laramie_postdoc/Missing_data_TS/missing-data/Model_Runs/poiss_Sim_mods/RickerConfigA_MinMaxMiss.txt",sep=" ",row.names = F, quote=F)
+write.table(configx, file="/Users/amypatterson/Documents/Laramie_postdoc/Missing_data_TS/missing-data/Model_Runs/poiss_Sim_mods/RickerConfig_MinMaxMiss.txt",sep=" ",row.names = F, quote=F)
 
-
-# Ricker B
-n=75000/2500
-# data file name
-datFile=rep("data/missingDatasets/pois_sim_MinMaxMiss_trim_B.rds",n)
-# par file name
-parFile=rep("data/missingDatasets/pois_sim_params.rds",n)
-# cluster size
-clsize=rep(5,n)
-# save file location
-saveFile=paste0(rep("Model_Runs/RickerB_MinMaxMiss_resultTable",n),1:n,".rds")
-# beginning index
-index1=seq(1,75000,by=2500)
-# ending index
-index2=seq(2500,75000,by=2500)
-configx=as.data.frame(matrix(data=c(1:n,datFile,parFile,clsize,saveFile,index1,index2),nrow=n,ncol=7,byrow=F))
-colnames(configx)=c("ArrayTaskID","datFile","parFile","clsize","saveFile","index1","index2")
-rownames(configx)=NULL
-configx$ArrayTaskID<-as.numeric(configx$ArrayTaskID)
-configx$clsize<-as.numeric(configx$clsize)
-configx$index1<-as.numeric(configx$index1)
-configx$index2<-as.numeric(configx$index2)
-
-write.table(configx, file="/Users/amypatterson/Documents/Laramie_postdoc/Missing_data_TS/missing-data/Model_Runs/poiss_Sim_mods/RickerConfigB_MinMaxMiss.txt",sep=" ",row.names = F, quote=F)
 
 
 ##########################################
