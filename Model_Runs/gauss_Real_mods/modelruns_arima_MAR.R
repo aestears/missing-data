@@ -13,10 +13,10 @@ library(here)
 
 ## read in the autocor_01 list ##
 
-gauss_auSable_randMiss <- readRDS(here("data/missingDatasets/gauss_real_auSable_randMiss.rds"))
-gauss_badger_randMiss <- readRDS(here("data/missingDatasets/gauss_real_badger_randMiss.rds"))
+gauss_auSable_randMiss <- readRDS(here("data/missingDatasets/gauss_real_auSable_randMiss_trim.rds"))
+#gauss_badger_randMiss <- readRDS(here("data/missingDatasets/gauss_real_badger_randMiss.rds"))
 au_sable_river_full <- read_csv(here("data/au_sable_river_prepped.csv"))
-badger_mill_creek_full <- read_csv(here("data/badger_mill_Creek_prepped.csv"))
+#badger_mill_creek_full <- read_csv(here("data/badger_mill_Creek_prepped.csv"))
 
 
 # Functions for missing data# approaches -----------------------------------
@@ -663,23 +663,23 @@ valsAll <- map_df(valNames, function(x) {
 write.csv(valsAll, file = paste(dirname, "gauss_auSable_real_MAR_arima_FORECASTvals.csv", sep = ""))
 
 ### compile for Badger Mill Creek ---------------
-
-# compile script output and save 
-dirname <- "./data/model_results/gauss_real_MAR_arima_modResults/badger_mill/"
-predNames <- list.files(dirname, pattern = "preds.csv")
-predsAll <- map_df(predNames, function(x) {
-  read_csv(paste0(dirname, x))
-})
-#write.csv(predsAll, file = "./data/model_results/gauss_real_MAR_arima_FORECASTpreds.csv")
-write.csv(predsAll, file = paste(dirname, "gauss_badger_real_MAR_arima_FORECASTpreds.csv", sep = ""))
-
-valNames <- list.files(dirname, pattern = "vals.csv")
-valsAll <- map_df(valNames, function(x) {
-  read_csv(paste0(dirname, x))
-})
-#write.csv(valsAll, file = "./data/model_results/gauss_real_MAR_arima_FORECASTvals.csv")
-write.csv(valsAll, file = paste(dirname, "gauss_badger_real_MAR_arima_FORECASTvals.csv", sep = ""))
-
+# 
+# # compile script output and save 
+# dirname <- "./data/model_results/gauss_real_MAR_arima_modResults/badger_mill/"
+# predNames <- list.files(dirname, pattern = "preds.csv")
+# predsAll <- map_df(predNames, function(x) {
+#   read_csv(paste0(dirname, x))
+# })
+# #write.csv(predsAll, file = "./data/model_results/gauss_real_MAR_arima_FORECASTpreds.csv")
+# write.csv(predsAll, file = paste(dirname, "gauss_badger_real_MAR_arima_FORECASTpreds.csv", sep = ""))
+# 
+# valNames <- list.files(dirname, pattern = "vals.csv")
+# valsAll <- map_df(valNames, function(x) {
+#   read_csv(paste0(dirname, x))
+# })
+# #write.csv(valsAll, file = "./data/model_results/gauss_real_MAR_arima_FORECASTvals.csv")
+# write.csv(valsAll, file = paste(dirname, "gauss_badger_real_MAR_arima_FORECASTvals.csv", sep = ""))
+# 
 # Once the job finishes, you can use the following command from within the folder
 #    containing all single line csv files to compile them into a single csv file:
 #     awk '(NR == 1) || (FNR > 1)' *vals.csv > AllResults.csv
