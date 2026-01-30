@@ -35,7 +35,7 @@ lapply(f_list, source)
 # (5) beginnning index (6) ending index (7) optional- model list
 
 # for testing outside of command line, can use this next line
-#in_args=c("data/missingDatasets/pois_sim_MinMaxMiss_trim.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 20, "drop")
+#in_args=c("data/missingDatasets/pois_sim_MinMaxMiss.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 2500, "drop")
 #in_args=c("data/missingDatasets/pois_sim_randMiss_A.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 5)
 
 in_args <- commandArgs(trailingOnly = T)
@@ -96,9 +96,9 @@ if(!is.null(names(dat))){
   
   pars_full <- pars_full %>% mutate(
     id = 1:length(dat_flat),
-    autoCorr = rep(autocorrs, each = 15),
+    autoCorr = rep(autocorrs, each = 16),
     propMiss = rep(
-      seq(0.05, 0.75, by = 0.05),
+      seq(0.00, 0.75, by = 0.05),# RandMiss includes the full data set, so include 0 here
       nrow(pars) * n_autocorrs
     ),
     actAutoCorr = autocorr_act,
