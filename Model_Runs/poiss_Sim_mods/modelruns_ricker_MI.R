@@ -103,7 +103,7 @@ if(!is.null(names(dat))){
   pars_full <- pars_full %>% mutate(
     id = 1:length(dat_flat),
     propMiss = rep(
-      seq(0.05, 0.75, by = 0.05),
+      seq(0.00, 0.75, by = 0.05),
       nrow(pars)
     ),
     actPropMiss = prop_miss
