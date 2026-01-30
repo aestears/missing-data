@@ -43,6 +43,7 @@ cat(in_args)
 # read in datafile
 dat <- readRDS(here(in_args[1]))
 pars <- readRDS(here(in_args[2]))
+dat0=readRDS(here("data/ricker_0miss_datasets.rds"))
 cat("data has been loaded")
 
 # count number of missingness proportions
@@ -62,6 +63,8 @@ dat_flat <- map(
   dat,
   ~ pluck(.x, "y")
 ) %>% list_flatten()
+
+
 
 if(!is.null(names(dat))){
   
@@ -132,6 +135,7 @@ if(!is.null(names(dat))){
 # pars_complete <- pars_full[-probs, ]
 
 # time testing only
+dat_flat_o=dat_flat
 dat_flat <- dat_flat[as.numeric(in_args[5]):as.numeric(in_args[6])]
 pars_full <- pars_full[as.numeric(in_args[5]):as.numeric(in_args[6]),]
 
@@ -213,6 +217,17 @@ forecast_rmse=function(ralpha,trueTS){
   return(RMSE)
 }
 
+lengths=numeric(10)
+for(i in 1:10){
+  lengths[i]=length(dat_flat_o[[i]])
+}
+u_lengths=unique(lengths)
+frequencies=numeric(length(u_lengths))
+for(i in 1:length(u_lengths)){
+  frequencies[i]=length(which(lengths==u_lengths[i]))
+}
+trimmedlength=unique(lengths)[which.max(frequencies)]
+
 forecasts=matrix(data=NA,nrow=nrow(results),ncol=length(methods))
 
 for(i in 1:nrow(results)){
@@ -221,8 +236,7 @@ for(i in 1:nrow(results)){
     column_cur=grep(paste0(methods[j],"_fits"),colnames(results))
     ralpha=results[i,column_cur][[1]][[1]] 
     cur_sim=results[i,1]
-    trueTS1=dat_flat[[(cur_sim-1)*16+1]]
-    trimmedlength=length(dat_flat[[(cur_sim-1)*16+2]])
+    trueTS1=dat0[[cur_sim]]$y
     trueTS=trueTS1[(trimmedlength+1):length(trueTS1)]
     forecasts[i,j]=forecast_rmse(ralpha=ralpha,trueTS=trueTS)
   }
