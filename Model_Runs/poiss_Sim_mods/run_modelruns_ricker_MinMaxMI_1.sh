@@ -11,14 +11,14 @@
 #SBATCH --mail-user=apatte12@uwyo.edu
 ### enter any job name that you prefer
 #SBATCH --job-name=minmaxMI
-#SBATCH --array=1-16000
+#SBATCH --array=1-8000
 
 
 module load arcc/1.0 gcc/14.2.0 r/4.4.0
 
 cd /project/modelscape/analyses/MissingTS/missing-data
 
-config=Model_Runs/poiss_Sim_mods/RickerConfigMinMax_MI.txt
+config=Model_Runs/poiss_Sim_mods/RickerConfigMinMax_MI_1.txt
 
 datFile=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $2}' $config)
 parFile=$(awk -v ArrayTaskID=$SLURM_ARRAY_TASK_ID '$1==ArrayTaskID {print $3}' $config)
