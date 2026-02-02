@@ -154,3 +154,32 @@ for(i in 1:10){
   write.table(configx, file=paste0("/Users/amypatterson/Documents/Laramie_postdoc/Missing_data_TS/missing-data/Model_Runs/poiss_Sim_mods/RickerConfigB_",i,".txt"),sep=" ",row.names = F, quote=F)
   
 }
+
+# Ricker MinMaxMiss MI
+
+  n=16000
+  # data file name
+  datFile=rep("data/missingDatasets/pois_sim_MinMaxMiss.rds",n)
+  # par file name
+  parFile=rep("data/missingDatasets/pois_sim_params.rds",n)
+  # cluster size
+  clsize=rep(5,n)
+  # save file location
+  saveFile=paste0(rep("Model_Runs/poiss_Sim_mods/RickerMinMaxMiss_MI_",n),1:n,".csv")
+  # beginning index
+  index1=1:16000
+  # ending index
+  index2=1:16000
+  seed=rep(1493,n)
+  configx=as.data.frame(matrix(data=c(1:n,datFile,parFile,clsize,saveFile,index1,index2,seed),nrow=n,ncol=8,byrow=F))
+  colnames(configx)=c("ArrayTaskID","datFile","parFile","clsize","saveFile","index1","index2","seed")
+  rownames(configx)=NULL
+  configx$ArrayTaskID<-as.numeric(configx$ArrayTaskID)
+  configx$clsize<-as.numeric(configx$clsize)
+  configx$index1<-as.numeric(configx$index1)
+  configx$index2<-as.numeric(configx$index2)
+  
+  write.table(configx, file=paste0("/Users/amypatterson/Documents/Laramie_postdoc/Missing_data_TS/missing-data/Model_Runs/poiss_Sim_mods/RickerConfigMinMax_MI.txt"),sep=" ",row.names = F, quote=F)
+  
+
+

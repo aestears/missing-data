@@ -35,8 +35,8 @@ lapply(f_list, source)
 # (5) beginnning index (6) ending index (7) optional- model list
 
 # for testing outside of command line, can use this next line
-#in_args=c("data/missingDatasets/pois_sim_MinMaxMiss.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 2500, "drop")
-#in_args=c("data/missingDatasets/pois_sim_randMiss_A.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 5)
+#in_args=c("data/missingDatasets/pois_sim_MinMaxMiss.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 15001, 15007, "drop")
+#in_args=c("data/missingDatasets/pois_sim_randMiss_B.rds", "data/missingDatasets/pois_sim_params.rds", 2, "Model_Runs/Ricker_example1.rds", 1, 5)
 
 in_args <- commandArgs(trailingOnly = T)
 cat(in_args)
